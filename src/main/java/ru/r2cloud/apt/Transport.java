@@ -9,8 +9,10 @@ public interface Transport {
 
 	void save(String path, IOCallback callback) throws IOException;
 
+	void saveGzipped(String path, IOCallback callback);
+
 	void load(String path, IOCallback callback) throws IOException, ResourceDoesNotExistException;
 
-	void saveGzipped(String path, IOCallback callback);
+	void loadGzipped(String path, IOCallback callback) throws IOException, ResourceDoesNotExistException;
 
 }

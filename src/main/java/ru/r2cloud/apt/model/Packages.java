@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
 
 import ru.r2cloud.apt.IOCallback;
 
@@ -20,7 +19,6 @@ public class Packages implements IOCallback {
 
 	@Override
 	public void load(InputStream is) throws IOException {
-		is = new GZIPInputStream(is);
 		String curLine = null;
 		BufferedReader r = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 		StringBuilder currentControl = new StringBuilder();

@@ -162,10 +162,9 @@ public class AptRepositoryImpl implements AptRepository {
 	}
 
 	private Packages loadPackages(Architecture arch) {
-		String path = getPackagesPath(arch) + ".gz";
 		try {
 			Packages result = new Packages();
-			transport.load(path, result);
+			transport.loadGzipped(getPackagesPath(arch) + ".gz", result);
 			return result;
 		} catch (Exception e) {
 			LOG.info("{}/Packages.gz do not exist. creating...", arch);
