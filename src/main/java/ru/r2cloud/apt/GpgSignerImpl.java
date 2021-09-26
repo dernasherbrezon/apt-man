@@ -14,7 +14,7 @@ import ru.r2cloud.apt.model.Release;
 import ru.r2cloud.apt.model.SignConfiguration;
 
 /**
- * Default GpgSigned based on system's "gpg" program
+ * Default GpgSigner based on system's "gpg" program
  * 
  * @author dernasherbrezon
  *
