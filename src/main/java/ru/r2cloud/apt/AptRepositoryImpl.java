@@ -25,6 +25,7 @@ import ru.r2cloud.apt.model.DebFile;
 import ru.r2cloud.apt.model.FileInfo;
 import ru.r2cloud.apt.model.Packages;
 import ru.r2cloud.apt.model.Release;
+import ru.r2cloud.apt.model.SignConfiguration;
 
 public class AptRepositoryImpl implements AptRepository {
 
@@ -33,11 +34,17 @@ public class AptRepositoryImpl implements AptRepository {
 	private final String component;
 	private final String codename;
 	private final Transport transport;
+	private final GpgSigner signer;
 
-	public AptRepositoryImpl(String codename, String component, Transport transport) {
+	public AptRepositoryImpl(String codename, String component, SignConfiguration signConfig, Transport transport) {
 		this.codename = codename;
 		this.component = component;
 		this.transport = transport;
+		if (signConfig != null) {
+			signer = new GpgSigner(signConfig, transport);
+		} else {
+			signer = null;
+		}
 	}
 
 	@Override
@@ -74,7 +81,7 @@ public class AptRepositoryImpl implements AptRepository {
 				curPackages.add(controlFile);
 			}
 
-			LOG.info("uploading: {}", f.getFile().getAbsolutePath());
+			LOG.info("uploading: {} to {}", f.getFile().getAbsolutePath(), path);
 			transport.save(path, f.getFile());
 		}
 
@@ -97,18 +104,18 @@ public class AptRepositoryImpl implements AptRepository {
 		}
 		release.setFiles(new HashSet<>(fileinfoByFilename.values()));
 
+		LOG.info("uploading release file: {}", getReleasePath());
 		transport.save(getReleasePath(), release);
 
-//		if (signer != null) {
-//			File releaseSignature = signer.generateSignatureForArtifact(releaseFile);
-//			getLog().info("uploading: Release.gpg");
-//			w.put(releaseSignature, getReleasePath() + ".gpg");
-//
-//			signer.setArgs(Collections.singletonList("--clearsign"));
-//			File clearsigned = signer.generateSignatureForArtifact(releaseFile);
-//			getLog().info("uploading: InRelease");
-//			w.put(clearsigned, "dists/" + codename + "/InRelease");
-//		}
+		if (signer != null) {
+			String gpgReleasePath = getReleasePath() + ".gpg";
+			LOG.info("uploading gpg release file: {}", gpgReleasePath);
+			signer.signAndSave(gpgReleasePath, release, false);
+			
+			String clearsignReleasePath = "dists/" + codename + "/InRelease";
+			LOG.info("uploading clearsign release file: {}", clearsignReleasePath);
+			signer.signAndSave(clearsignReleasePath, release, true);
+		}
 	}
 
 	private List<FileInfo> uploadPackages(Packages packages) throws IOException {
