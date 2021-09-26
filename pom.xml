@@ -9,13 +9,14 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<logversion>1.7.12</logversion>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.5</version>
+			<version>${logversion}</version>
 		</dependency>
 			
 		<dependency>
@@ -41,7 +42,12 @@
 			<version>4.13.1</version>
 			<scope>test</scope>
 		</dependency>
-		
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${logversion}</version>
+			<scope>test</scope>
+		</dependency>		
 	</dependencies>
 
 	<build>

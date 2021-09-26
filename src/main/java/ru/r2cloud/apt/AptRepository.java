@@ -16,6 +16,8 @@ import ru.r2cloud.apt.model.DebFile;
  * }
  * </pre>
  * 
+ * GpgSigner can be empty. In that case no gpg signature will be generated.
+ * 
  * @author dernasherbrezon
  *
  */

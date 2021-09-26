@@ -152,7 +152,7 @@ public class AptRepositoryImpl implements AptRepository {
 		try {
 			transport.load(getReleasePath(), result);
 		} catch (ResourceDoesNotExistException e) {
-			LOG.info("Release file does not exist. creating...");
+			LOG.info("create missing file: {}", getReleasePath());
 			result.setCodename(codename);
 			result.setLabel(codename);
 			result.setOrigin(codename);
@@ -164,13 +164,16 @@ public class AptRepositoryImpl implements AptRepository {
 	}
 
 	private Packages loadPackages(Architecture arch) {
+		String path = getPackagesPath(arch) + ".gz";
 		try {
 			Packages result = new Packages();
-			transport.loadGzipped(getPackagesPath(arch) + ".gz", result);
+			transport.loadGzipped(path, result);
 			return result;
 		} catch (Exception e) {
-			LOG.info("{}/Packages.gz do not exist. creating...", arch);
-			return new Packages();
+			LOG.info("create missing file: {}", path);
+			Packages newPackages = new Packages();
+			newPackages.setArchitecture(arch);
+			return newPackages;
 		}
 	}
 

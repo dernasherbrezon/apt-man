@@ -25,6 +25,7 @@ public class FileTransport implements Transport {
 	@Override
 	public void save(String path, File file) throws IOException {
 		File targetFile = new File(basedir, path);
+		setupParentDir(targetFile);
 		try (OutputStream os = new BufferedOutputStream(new FileOutputStream(targetFile)); InputStream is = new BufferedInputStream(new FileInputStream(file))) {
 			IOUtils.copy(is, os);
 		}
@@ -33,6 +34,7 @@ public class FileTransport implements Transport {
 	@Override
 	public void save(String path, IOCallback callback) throws IOException {
 		File file = new File(basedir, path);
+		setupParentDir(file);
 		try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
 			callback.save(os);
 		}
@@ -59,4 +61,10 @@ public class FileTransport implements Transport {
 		load(path, new GzippedCallback(callback));
 	}
 
+	private static void setupParentDir(File targetFile) throws IOException {
+		File parent = targetFile.getParentFile();
+		if (!parent.exists() && !parent.mkdirs()) {
+			throw new IOException("cannot create parent dir");
+		}
+	}
 }
