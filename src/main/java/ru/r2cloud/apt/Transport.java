@@ -4,12 +4,13 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Interface for providing different protocols for working with apt repositories.
- * Some of these protocols might include:
+ * Interface for providing different protocols for working with apt
+ * repositories. Some of these protocols might include:
  * <ul>
- * 	<li>File</li>
- * 	<li>Amazon S3</li>
- * 	<li>Maven's Wagon</li>
+ * <li>File</li>
+ * <li>Http</li>
+ * <li>Amazon S3</li>
+ * <li>Maven's Wagon</li>
  * </ul>
  * 
  * @author dernasherbrezon
@@ -17,11 +18,11 @@ import java.io.IOException;
  */
 public interface Transport {
 
-	void save(String path, File file);
+	void save(String path, File file) throws IOException;
 
 	void save(String path, IOCallback callback) throws IOException;
 
-	void saveGzipped(String path, IOCallback callback);
+	void saveGzipped(String path, IOCallback callback) throws IOException;
 
 	void load(String path, IOCallback callback) throws IOException, ResourceDoesNotExistException;
 
