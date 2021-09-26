@@ -62,8 +62,7 @@ public class Packages implements IOCallback {
 		return architecture;
 	}
 
-	// used only in tests
-	Map<String, ControlFile> getContents() {
+	public Map<String, ControlFile> getContents() {
 		return contents;
 	}
 
