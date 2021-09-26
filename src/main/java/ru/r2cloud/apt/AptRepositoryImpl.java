@@ -25,7 +25,6 @@ import ru.r2cloud.apt.model.DebFile;
 import ru.r2cloud.apt.model.FileInfo;
 import ru.r2cloud.apt.model.Packages;
 import ru.r2cloud.apt.model.Release;
-import ru.r2cloud.apt.model.SignConfiguration;
 
 public class AptRepositoryImpl implements AptRepository {
 
@@ -36,15 +35,11 @@ public class AptRepositoryImpl implements AptRepository {
 	private final Transport transport;
 	private final GpgSigner signer;
 
-	public AptRepositoryImpl(String codename, String component, SignConfiguration signConfig, Transport transport) {
+	public AptRepositoryImpl(String codename, String component, GpgSigner signer, Transport transport) {
 		this.codename = codename;
 		this.component = component;
 		this.transport = transport;
-		if (signConfig != null) {
-			signer = new GpgSigner(signConfig, transport);
-		} else {
-			signer = null;
-		}
+		this.signer = signer;
 	}
 
 	@Override
@@ -110,11 +105,11 @@ public class AptRepositoryImpl implements AptRepository {
 		if (signer != null) {
 			String gpgReleasePath = getReleasePath() + ".gpg";
 			LOG.info("uploading gpg release file: {}", gpgReleasePath);
-			signer.signAndSave(gpgReleasePath, release, false);
-			
+			signer.signAndSave(gpgReleasePath, release, false, transport);
+
 			String clearsignReleasePath = "dists/" + codename + "/InRelease";
 			LOG.info("uploading clearsign release file: {}", clearsignReleasePath);
-			signer.signAndSave(clearsignReleasePath, release, true);
+			signer.signAndSave(clearsignReleasePath, release, true, transport);
 		}
 	}
 
