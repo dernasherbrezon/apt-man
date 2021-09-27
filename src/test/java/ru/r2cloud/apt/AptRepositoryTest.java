@@ -3,6 +3,7 @@ package ru.r2cloud.apt;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedInputStream;
@@ -12,6 +13,8 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.compress.utils.IOUtils;
 import org.junit.Rule;
@@ -31,6 +34,35 @@ public class AptRepositoryTest {
 		AptRepository aptMan = new AptRepositoryImpl("codename", "component", null, transport);
 		aptMan.saveFile(new DebFile(new File("src/test/resources/rtl-sdr_0.6git_armhf.deb")));
 		assertFiles(new File("src/test/resources/expected"), tempFolder.getRoot());
+	}
+
+	@Test
+	public void testCleanup() throws Exception {
+		FileTransport transport = new FileTransport(tempFolder.getRoot().getAbsolutePath());
+		AptRepository aptMan = new AptRepositoryImpl("codename", "component", null, transport);
+		aptMan.saveFile(new DebFile(new File("src/test/resources/rtl-sdr_0.6git_armhf.deb")));
+		aptMan.saveFile(new DebFile(new File("src/test/resources/rtl-sdr_0.6_armhf.deb")));
+		aptMan.cleanup(2);
+		assertFilesInDirectory(tempFolder.getRoot().getAbsolutePath() + File.separator + "pool" + File.separator + "component" + File.separator + "r" + File.separator + "rtl-sdr", "rtl-sdr_0.6git_armhf.deb", "rtl-sdr_0.6_armhf.deb");
+		aptMan.cleanup(1);
+		assertFilesInDirectory(tempFolder.getRoot().getAbsolutePath() + File.separator + "dists" + File.separator + "codename" + File.separator + "component" + File.separator + "binary-armhf" + File.separator + "by-hash" + File.separator + "MD5Sum", "65ebfe0e459b7c7a12d1584df17ff054",
+				"4b21caa7442e0cae48c1d8485209a0b4");
+		assertFilesInDirectory(tempFolder.getRoot().getAbsolutePath() + File.separator + "pool" + File.separator + "component" + File.separator + "r" + File.separator + "rtl-sdr", "rtl-sdr_0.6_armhf.deb");
+	}
+
+	private static void assertFilesInDirectory(String basepath, String... filenames) {
+		File base = new File(basepath);
+		assertTrue(base.exists());
+		assertTrue(base.isDirectory());
+		File[] actualFiles = base.listFiles();
+		assertEquals(filenames.length, actualFiles.length);
+		Set<String> indexedNames = new HashSet<>();
+		for (String cur : filenames) {
+			indexedNames.add(cur);
+		}
+		for (File cur : actualFiles) {
+			assertTrue("non existing file: " + cur.getName(), indexedNames.contains(cur.getName()));
+		}
 	}
 
 	private static void assertFiles(File expected, File actual) {

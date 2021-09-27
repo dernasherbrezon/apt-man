@@ -37,5 +37,12 @@ public interface AptRepository {
 	 * @throws IOException - on any error
 	 */
 	void saveFile(DebFile debFile) throws IOException;
+	
+	/**
+	 * Remove unused files from the repository.
+	 * @param keepLast - keep last number of files in each category
+	 * @throws IOException - on any error
+	 */
+	void cleanup(int keepLast) throws IOException; 
 
 }

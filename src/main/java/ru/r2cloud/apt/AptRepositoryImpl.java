@@ -25,6 +25,7 @@ import ru.r2cloud.apt.model.DebFile;
 import ru.r2cloud.apt.model.FileInfo;
 import ru.r2cloud.apt.model.Packages;
 import ru.r2cloud.apt.model.Release;
+import ru.r2cloud.apt.model.RemoteFile;
 
 public class AptRepositoryImpl implements AptRepository {
 
@@ -112,6 +113,92 @@ public class AptRepositoryImpl implements AptRepository {
 			LOG.info("uploading clearsign release file: {}", clearsignReleasePath);
 			signer.signAndSave(clearsignReleasePath, release, true, transport);
 		}
+	}
+
+	@Override
+	public void cleanup(int keepLast) throws IOException {
+		Release release = loadRelease();
+		for (String component : release.getComponents()) {
+			for (String arch : release.getArchitectures()) {
+				Architecture curArch = Architecture.valueOf(arch);
+
+				if (release.isByHash()) {
+					FileInfo info = findPackageInfo(getPackagesPath(curArch), release);
+					FileInfo gzippedInfo = findPackageInfo(getPackagesPath(curArch) + ".gz", release);
+
+					String byHashPrefix = "dists/" + release.getCodename() + "/" + component + "/binary-" + arch + "/by-hash";
+					Set<String> ignore = new HashSet<>();
+					if (info != null) {
+						ignore.add(byHashPrefix + "/MD5Sum/" + info.getMd5());
+						ignore.add(byHashPrefix + "/SHA1/" + info.getSha1());
+						ignore.add(byHashPrefix + "/SHA256/" + info.getSha256());
+					}
+					if (gzippedInfo != null) {
+						ignore.add(byHashPrefix + "/MD5Sum/" + gzippedInfo.getMd5());
+						ignore.add(byHashPrefix + "/SHA1/" + gzippedInfo.getSha1());
+						ignore.add(byHashPrefix + "/SHA256/" + gzippedInfo.getSha256());
+					}
+					// keep times 2 hashes because /by-hash/*/ might contain both gzipped and
+					// plain hashes
+					int hashesToKeep = (keepLast - 1) * 2;
+					cleanup(hashesToKeep, filterByName(transport.listFiles(byHashPrefix + "/MD5Sum/"), ignore));
+					cleanup(hashesToKeep, filterByName(transport.listFiles(byHashPrefix + "/SHA1/"), ignore));
+					cleanup(hashesToKeep, filterByName(transport.listFiles(byHashPrefix + "/SHA256/"), ignore));
+				}
+
+				Packages packages = loadPackages(curArch);
+
+				for (ControlFile control : packages.getContents().values()) {
+					String packageBaseDir = extractParentPath(control.getFilename());
+					// filename might be corrupted
+					if (packageBaseDir == null) {
+						continue;
+					}
+					// make sure active package file was not deleted
+					cleanup(keepLast - 1, filterByName(transport.listFiles(packageBaseDir), Collections.singleton(control.getFilename())));
+				}
+			}
+		}
+	}
+
+	private static List<RemoteFile> filterByName(List<RemoteFile> allFiles, Set<String> indexedIgnore) {
+		List<RemoteFile> result = new ArrayList<>();
+		for (RemoteFile cur : allFiles) {
+			if (indexedIgnore.contains(cur.getPath())) {
+				continue;
+			}
+			result.add(cur);
+		}
+		return result;
+	}
+
+	private void cleanup(int keepLast, List<RemoteFile> listHashes) {
+		if (listHashes.isEmpty()) {
+			return;
+		}
+		Collections.sort(listHashes, RemoteFileComparator.INSTANCE);
+		for (int i = 0; i < listHashes.size() - keepLast; i++) {
+			String pathToDelete = listHashes.get(i).getPath();
+			LOG.info("deleting: {}", pathToDelete);
+			transport.delete(pathToDelete);
+		}
+	}
+
+	private static String extractParentPath(String filename) {
+		int index = filename.lastIndexOf('/');
+		if (index == -1) {
+			return null;
+		}
+		return filename.substring(0, index);
+	}
+
+	private static FileInfo findPackageInfo(String filename, Release release) {
+		for (FileInfo cur : release.getFiles()) {
+			if (("dists/" + release.getCodename() + "/" + cur.getFilename()).equalsIgnoreCase(filename)) {
+				return cur;
+			}
+		}
+		return null;
 	}
 
 	private List<FileInfo> uploadPackages(Packages packages) throws IOException {

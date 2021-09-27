@@ -8,12 +8,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.compress.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ru.r2cloud.apt.model.RemoteFile;
 
 public class FileTransport implements Transport {
+
+	private static final Logger LOG = LoggerFactory.getLogger(FileTransport.class);
 
 	private final File basedir;
 
@@ -70,6 +79,38 @@ public class FileTransport implements Transport {
 		}
 		try (InputStream is = new BufferedInputStream(new GZIPInputStream(new FileInputStream(file)))) {
 			callback.load(is);
+		}
+	}
+
+	@Override
+	public List<RemoteFile> listFiles(String path) {
+		if (!path.endsWith("/")) {
+			path += "/";
+		}
+		File dir = new File(basedir, path);
+		if (!dir.exists() || !dir.isDirectory()) {
+			return Collections.emptyList();
+		}
+		File[] files = dir.listFiles();
+		List<RemoteFile> result = new ArrayList<>();
+		for (File cur : files) {
+			RemoteFile curRemoteFile = new RemoteFile();
+			// always use "/" because paths are based on "/"
+			curRemoteFile.setPath(path + cur.getName());
+			curRemoteFile.setLastModifiedTime(cur.lastModified());
+			result.add(curRemoteFile);
+		}
+		return result;
+	}
+
+	@Override
+	public void delete(String path) {
+		File fileToDelete = new File(basedir, path);
+		if (!fileToDelete.exists()) {
+			return;
+		}
+		if (!fileToDelete.delete()) {
+			LOG.error("unable to delete: {}", fileToDelete.getAbsolutePath());
 		}
 	}
 

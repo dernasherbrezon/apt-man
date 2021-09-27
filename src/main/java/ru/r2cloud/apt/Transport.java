@@ -2,10 +2,13 @@ package ru.r2cloud.apt;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+
+import ru.r2cloud.apt.model.RemoteFile;
 
 /**
- * Interface for providing different protocols for working with apt
- * repositories. Some of these protocols might include:
+ * Different protocols for working with apt
+ * repositories. Some of them might include:
  * <ul>
  * <li>File</li>
  * <li>Http</li>
@@ -27,5 +30,9 @@ public interface Transport {
 	void load(String path, IOCallback callback) throws IOException, ResourceDoesNotExistException;
 
 	void loadGzipped(String path, IOCallback callback) throws IOException, ResourceDoesNotExistException;
+
+	List<RemoteFile> listFiles(String path);
+
+	void delete(String path);
 
 }

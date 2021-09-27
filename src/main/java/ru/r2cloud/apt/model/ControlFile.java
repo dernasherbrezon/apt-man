@@ -9,7 +9,8 @@ public class ControlFile {
 	private String version;
 	private Architecture arch;
 	private String contents;
-
+	private String filename;
+	
 	private final Map<String, String> payload = new HashMap<>();
 
 	public Map<String, String> getPayload() {
@@ -47,6 +48,14 @@ public class ControlFile {
 	public void setArch(Architecture arch) {
 		this.arch = arch;
 	}
+	
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
+
+	public String getFilename() {
+		return filename;
+	}
 
 	public void load(String str) {
 		contents = str.trim();
@@ -70,6 +79,10 @@ public class ControlFile {
 			}
 			if (parts[0].equalsIgnoreCase("Architecture")) {
 				setArch(Architecture.valueOf(value));
+				continue;
+			}
+			if (parts[0].equalsIgnoreCase("Filename")) {
+				setFilename(value);
 				continue;
 			}
 		}
