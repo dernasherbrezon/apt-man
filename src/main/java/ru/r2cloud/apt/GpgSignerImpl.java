@@ -35,11 +35,11 @@ public class GpgSignerImpl implements GpgSigner {
 		command.append(signConfig.getGpgCommand());
 		command.append(" --local-user ");
 		command.append(signConfig.getKeyname());
+		command.append(" --armor --detach-sign --batch --passphrase ");
+		command.append(signConfig.getPassphrase());
 		if (clearsign) {
 			command.append(" --clearsign ");
 		}
-		command.append(" --armor --detach-sign --batch --passphrase ");
-		command.append(signConfig.getPassphrase());
 		ProcessBuilder pb = new ProcessBuilder(command.toString().split(" "));
 		Process proc = pb.start();
 		release.save(proc.getOutputStream());

@@ -1,12 +1,15 @@
 Origin: codename
 Label: codename
 Codename: codename
-Date: Sun, 26 Sep 2021 17:06:10 UTC
+Date: Mon, 27 Sep 2021 15:39:21 UTC
 Architectures: armhf
 Components: component
 MD5Sum:
- 80a8d96351274b5be3dd3ca4ec513c41 670 component/binary-armhf/Packages
+ 80a8d96351274b5be3dd3ca4ec513c41 670 component/binary-armhf/Packages.gz
+ 0ddfc850203245799f3eb18491eaa983 1217 component/binary-armhf/Packages
 SHA1:
- fca81b6ea0535fbe519776cfab12394290933876 670 component/binary-armhf/Packages
+ fca81b6ea0535fbe519776cfab12394290933876 670 component/binary-armhf/Packages.gz
+ 948ae3a504393b3a6e3335ffaff72b30ef393ed7 1217 component/binary-armhf/Packages
 SHA256:
- 761eb6b0747e4e9a3be2c93e95276dc114a5feed0a3bec817c4f5d4166d861d2 670 component/binary-armhf/Packages
+ 761eb6b0747e4e9a3be2c93e95276dc114a5feed0a3bec817c4f5d4166d861d2 670 component/binary-armhf/Packages.gz
+ cc2349c05fbc7c8ad53625834ca9b1eff3a7876191719fe55c4c0ede7f7510a5 1217 component/binary-armhf/Packages

@@ -138,7 +138,7 @@ public class AptRepositoryImpl implements AptRepository {
 		fileInfo = new FileInfo();
 		fileInfo.setSize(String.valueOf(data.length));
 		fileInfo.load(new ByteArrayInputStream(data));
-		fileInfo.setFilename(getPackagesBasePath(packages.getArchitecture()));
+		fileInfo.setFilename(getPackagesBasePath(packages.getArchitecture()) + ".gz");
 		result.add(fileInfo);
 		path = path + ".gz";
 		LOG.info("uploading: {}", path);

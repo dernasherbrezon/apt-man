@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.compress.utils.IOUtils;
 
@@ -53,12 +55,22 @@ public class FileTransport implements Transport {
 
 	@Override
 	public void saveGzipped(String path, IOCallback callback) throws IOException {
-		save(path, new GzippedCallback(callback));
+		File file = new File(basedir, path);
+		setupParentDir(file);
+		try (OutputStream os = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(file)))) {
+			callback.save(os);
+		}
 	}
 
 	@Override
 	public void loadGzipped(String path, IOCallback callback) throws IOException, ResourceDoesNotExistException {
-		load(path, new GzippedCallback(callback));
+		File file = new File(basedir, path);
+		if (!file.exists()) {
+			throw new ResourceDoesNotExistException();
+		}
+		try (InputStream is = new BufferedInputStream(new GZIPInputStream(new FileInputStream(file)))) {
+			callback.load(is);
+		}
 	}
 
 	private static void setupParentDir(File targetFile) throws IOException {
