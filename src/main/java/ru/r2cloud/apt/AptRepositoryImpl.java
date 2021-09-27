@@ -83,6 +83,8 @@ public class AptRepositoryImpl implements AptRepository {
 		Release release = loadRelease();
 		// append arch and component to the existing
 		release.getComponents().add(component);
+		// force using by-hash
+		release.setByHash(true);
 		for (Architecture cur : packagesPerArch.keySet()) {
 			release.getArchitectures().add(cur.name());
 		}
@@ -99,8 +101,7 @@ public class AptRepositoryImpl implements AptRepository {
 		}
 		release.setFiles(new HashSet<>(fileinfoByFilename.values()));
 
-		LOG.info("uploading release file: {}", getReleasePath());
-		transport.save(getReleasePath(), release);
+		saveWithLog(getReleasePath(), release);
 
 		if (signer != null) {
 			String gpgReleasePath = getReleasePath() + ".gpg";
@@ -125,9 +126,10 @@ public class AptRepositoryImpl implements AptRepository {
 		fileInfo.setFilename(getPackagesBasePath(packages.getArchitecture()));
 		result.add(fileInfo);
 
-		String path = getPackagesPath(packages.getArchitecture());
-		LOG.info("uploading: {}", path);
-		transport.save(path, packages);
+		saveWithLog(getPackagesPath(packages.getArchitecture()), packages);
+		saveWithLog(getPackagesPathParent(packages.getArchitecture()) + "/by-hash/MD5Sum/" + fileInfo.getMd5(), packages);
+		saveWithLog(getPackagesPathParent(packages.getArchitecture()) + "/by-hash/SHA1/" + fileInfo.getSha1(), packages);
+		saveWithLog(getPackagesPathParent(packages.getArchitecture()) + "/by-hash/SHA256/" + fileInfo.getSha256(), packages);
 
 		// gzipped
 		baos = new ByteArrayOutputStream();
@@ -140,9 +142,11 @@ public class AptRepositoryImpl implements AptRepository {
 		fileInfo.load(new ByteArrayInputStream(data));
 		fileInfo.setFilename(getPackagesBasePath(packages.getArchitecture()) + ".gz");
 		result.add(fileInfo);
-		path = path + ".gz";
-		LOG.info("uploading: {}", path);
-		transport.saveGzipped(path, packages);
+
+		saveGzippedWithLog(getPackagesPath(packages.getArchitecture()) + ".gz", packages);
+		saveGzippedWithLog(getPackagesPathParent(packages.getArchitecture()) + "/by-hash/MD5Sum/" + fileInfo.getMd5(), packages);
+		saveGzippedWithLog(getPackagesPathParent(packages.getArchitecture()) + "/by-hash/SHA1/" + fileInfo.getSha1(), packages);
+		saveGzippedWithLog(getPackagesPathParent(packages.getArchitecture()) + "/by-hash/SHA256/" + fileInfo.getSha256(), packages);
 
 		return result;
 	}
@@ -168,6 +172,7 @@ public class AptRepositoryImpl implements AptRepository {
 		try {
 			Packages result = new Packages();
 			transport.loadGzipped(path, result);
+			result.setArchitecture(arch);
 			return result;
 		} catch (Exception e) {
 			LOG.info("create missing file: {}", path);
@@ -190,8 +195,21 @@ public class AptRepositoryImpl implements AptRepository {
 		return "dists/" + codename + "/" + getPackagesBasePath(architecture);
 	}
 
+	private String getPackagesPathParent(Architecture architecture) {
+		return "dists/" + codename + "/" + component + "/binary-" + architecture.name();
+	}
+
 	private String getReleasePath() {
 		return "dists/" + codename + "/Release";
 	}
 
+	private void saveWithLog(String path, IOCallback callback) throws IOException {
+		LOG.info("uploading: {}", path);
+		transport.save(path, callback);
+	}
+
+	private void saveGzippedWithLog(String path, IOCallback callback) throws IOException {
+		LOG.info("uploading: {}", path);
+		transport.saveGzipped(path, callback);
+	}
 }

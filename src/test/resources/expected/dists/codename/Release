@@ -4,6 +4,7 @@ Codename: codename
 Date: Mon, 27 Sep 2021 15:39:21 UTC
 Architectures: armhf
 Components: component
+Acquire-By-Hash: yes
 MD5Sum:
  80a8d96351274b5be3dd3ca4ec513c41 670 component/binary-armhf/Packages.gz
  0ddfc850203245799f3eb18491eaa983 1217 component/binary-armhf/Packages

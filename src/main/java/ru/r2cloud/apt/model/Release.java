@@ -26,10 +26,19 @@ public class Release implements IOCallback {
 	private String label;
 	private String codename;
 	private String date;
+	private boolean byHash;
 	private Set<String> architectures = new HashSet<>();
 	private Set<String> components = new HashSet<>();
 	private Set<FileInfo> files = new HashSet<>();
 	private List<String> unknown = new ArrayList<>();
+
+	public boolean isByHash() {
+		return byHash;
+	}
+
+	public void setByHash(boolean byHash) {
+		this.byHash = byHash;
+	}
 
 	public String getOrigin() {
 		return origin;
@@ -142,6 +151,10 @@ public class Release implements IOCallback {
 				components = splitBySpace(value);
 			} else if (name.equals("MD5Sum") || name.equals("SHA1") || name.equals("SHA256")) {
 				curGroup = name;
+			} else if (name.equals("Acquire-By-Hash")) {
+				if (value.equalsIgnoreCase("yes")) {
+					byHash = true;
+				}
 			} else {
 				unknown.add(line);
 			}
@@ -197,6 +210,9 @@ public class Release implements IOCallback {
 		w.append("Date: ").append(date).append("\n");
 		w.append("Architectures: ").append(joinBySpace(architectures)).append("\n");
 		w.append("Components: ").append(joinBySpace(components)).append("\n");
+		if (byHash) {
+			w.append("Acquire-By-Hash: yes\n");
+		}
 		if (!files.isEmpty()) {
 			w.append("MD5Sum:\n");
 			for (FileInfo cur : files) {
