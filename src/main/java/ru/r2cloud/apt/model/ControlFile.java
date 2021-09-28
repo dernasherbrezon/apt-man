@@ -1,6 +1,7 @@
 package ru.r2cloud.apt.model;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class ControlFile {
@@ -78,7 +79,7 @@ public class ControlFile {
 				continue;
 			}
 			if (parts[0].equalsIgnoreCase("Architecture")) {
-				setArch(Architecture.valueOf(value));
+				setArch(Architecture.valueOf(value.toUpperCase(Locale.UK)));
 				continue;
 			}
 			if (parts[0].equalsIgnoreCase("Filename")) {

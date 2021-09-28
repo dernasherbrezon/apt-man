@@ -69,7 +69,7 @@ public class GpgSignerImpl implements GpgSigner {
 			Thread.currentThread().interrupt();
 			throw new IOException("unable to wait for process completion");
 		}
-		if (code != 0) {
+		if (code != 0 && LOG.isErrorEnabled()) {
 			LOG.error("unable to sign: {}", error.toString().trim());
 		}
 	}

@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -106,9 +107,7 @@ public class FileTransport implements Transport {
 		if (!fileToDelete.exists()) {
 			return;
 		}
-		if (!fileToDelete.delete()) {
-			throw new IOException("unable to delete: " + fileToDelete.getAbsolutePath());
-		}
+		Files.delete(fileToDelete.toPath());
 	}
 
 	private static void setupParentDir(File targetFile) throws IOException {

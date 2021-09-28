@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -50,7 +51,7 @@ public class AptRepositoryImpl implements AptRepository {
 
 		for (DebFile f : debFiles) {
 			ControlFile controlFile = f.getControl();
-			String path = "pool/" + component + "/" + controlFile.getPackageName().charAt(0) + "/" + controlFile.getPackageName() + "/" + controlFile.getPackageName() + "_" + controlFile.getVersion() + "_" + controlFile.getArch() + ".deb";
+			String path = "pool/" + component + "/" + controlFile.getPackageName().charAt(0) + "/" + controlFile.getPackageName() + "/" + controlFile.getPackageName() + "_" + controlFile.getVersion() + "_" + controlFile.getArch().name().toLowerCase(Locale.UK) + ".deb";
 			FileInfo fileInfo = f.getInfo();
 			controlFile.append("Filename: " + path);
 			controlFile.append("Size: " + fileInfo.getSize());
@@ -87,7 +88,7 @@ public class AptRepositoryImpl implements AptRepository {
 		release.getComponents().add(component);
 		// add new architectures if any
 		for (Architecture cur : packagesPerArch.keySet()) {
-			release.getArchitectures().add(cur.name());
+			release.getArchitectures().add(cur.name().toLowerCase(Locale.UK));
 		}
 
 		reindex(release, packagesPerArch.values());
@@ -126,7 +127,7 @@ public class AptRepositoryImpl implements AptRepository {
 	public void cleanup(int keepLast) throws IOException {
 		Release release = loadRelease();
 		for (String arch : release.getArchitectures()) {
-			Architecture curArch = Architecture.valueOf(arch);
+			Architecture curArch = Architecture.valueOf(arch.toUpperCase(Locale.UK));
 
 			if (release.isByHash()) {
 				FileInfo info = findPackageInfo(getPackagesPath(curArch), release);
@@ -173,7 +174,7 @@ public class AptRepositoryImpl implements AptRepository {
 		List<Packages> toUpdate = new ArrayList<>();
 		Set<String> allBasepathsToDelete = new HashSet<>();
 		for (String arch : release.getArchitectures()) {
-			Architecture curArch = Architecture.valueOf(arch);
+			Architecture curArch = Architecture.valueOf(arch.toUpperCase(Locale.UK));
 
 			Packages packagesFile = loadPackages(curArch);
 			Set<String> basepathsToDelete = new HashSet<>();
@@ -331,7 +332,7 @@ public class AptRepositoryImpl implements AptRepository {
 	}
 
 	private String getPackagesBasePath(Architecture architecture) {
-		return component + "/binary-" + architecture.name() + "/Packages";
+		return component + "/binary-" + architecture.name().toLowerCase(Locale.UK) + "/Packages";
 	}
 
 	private String getPackagesPath(Architecture architecture) {
@@ -339,7 +340,7 @@ public class AptRepositoryImpl implements AptRepository {
 	}
 
 	private String getPackagesPathParent(Architecture architecture) {
-		return "dists/" + codename + "/" + component + "/binary-" + architecture.name();
+		return "dists/" + codename + "/" + component + "/binary-" + architecture.name().toLowerCase(Locale.UK);
 	}
 
 	private String getReleasePath() {

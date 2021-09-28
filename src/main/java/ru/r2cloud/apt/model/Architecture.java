@@ -2,7 +2,7 @@ package ru.r2cloud.apt.model;
 
 public enum Architecture {
 
-	amd64(false), i386(false), any(true), all(true), armhf(false);
+	AMD64(false), I386(false), ANY(true), ALL(true), ARMHF(false);
 	
 	private final boolean wildcard;
 	

@@ -1,8 +1,6 @@
 package ru.r2cloud.apt;
 
-import java.io.IOException;
-
-public class ResourceDoesNotExistException extends IOException {
+public class ResourceDoesNotExistException extends Exception {
 
 	private static final long serialVersionUID = -8997629339000400780L;
 
