@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/dernasherbrezon/apt-man.svg?branch=master)](https://travis-ci.com/dernasherbrezon/apt-man) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ru.r2cloud%3Aapt-man&metric=alert_status)](https://sonarcloud.io/dashboard?id=ru.r2cloud%3Aapt-man)
+[![Build Status](https://app.travis-ci.com/dernasherbrezon/apt-man.svg?branch=main)](https://app.travis-ci.com/github/dernasherbrezon/apt-man) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ru.r2cloud%3Aapt-man&metric=alert_status)](https://sonarcloud.io/dashboard?id=ru.r2cloud%3Aapt-man)
 
 # About
 
