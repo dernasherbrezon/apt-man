@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,7 +21,7 @@ import ru.r2cloud.apt.IOCallback;
 
 public class Release implements IOCallback {
 
-	private final static Pattern SPACE = Pattern.compile("\\s+");
+	private static final Pattern SPACE = Pattern.compile("\\s+");
 
 	private String origin;
 	private String label;
@@ -98,7 +99,7 @@ public class Release implements IOCallback {
 
 	@Override
 	public void load(InputStream is) throws IOException {
-		BufferedReader r = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+		BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
 		String curLine = null;
 		String curGroup = null;
 		Map<String, FileInfo> fileInfoByFilename = new HashMap<>();
@@ -201,7 +202,7 @@ public class Release implements IOCallback {
 
 	@Override
 	public void save(OutputStream os) throws IOException {
-		BufferedWriter w = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+		BufferedWriter w = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
 		w.append("Origin: ").append(origin).append("\n");
 		if (label != null) {
 			w.append("Label: ").append(label).append("\n");

@@ -21,20 +21,20 @@ public class FileInfo {
 		try {
 			MessageDigest md5Alg = MessageDigest.getInstance("MD5");
 			md5Alg.reset();
-			MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
-			sha1.reset();
-			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-			sha256.reset();
+			MessageDigest sha1Alg = MessageDigest.getInstance("SHA-1");
+			sha1Alg.reset();
+			MessageDigest sha256Alg = MessageDigest.getInstance("SHA-256");
+			sha256Alg.reset();
 			byte[] buf = new byte[2048];
 			int curByte = -1;
 			while ((curByte = bis.read(buf)) != -1) {
 				md5Alg.update(buf, 0, curByte);
-				sha1.update(buf, 0, curByte);
-				sha256.update(buf, 0, curByte);
+				sha1Alg.update(buf, 0, curByte);
+				sha256Alg.update(buf, 0, curByte);
 			}
 			setMd5(new String(Hex.encodeHex(md5Alg.digest())));
-			setSha1(new String(Hex.encodeHex(sha1.digest())));
-			setSha256(new String(Hex.encodeHex(sha256.digest())));
+			setSha1(new String(Hex.encodeHex(sha1Alg.digest())));
+			setSha256(new String(Hex.encodeHex(sha256Alg.digest())));
 		} catch (NoSuchAlgorithmException e) {
 			throw new IOException("unsupported algorithm", e);
 		}

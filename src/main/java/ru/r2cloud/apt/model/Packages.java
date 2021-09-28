@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ public class Packages implements IOCallback {
 	@Override
 	public void load(InputStream is) throws IOException {
 		String curLine = null;
-		BufferedReader r = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+		BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
 		StringBuilder currentControl = new StringBuilder();
 		while (true) {
 			curLine = r.readLine();
@@ -43,7 +44,7 @@ public class Packages implements IOCallback {
 
 	@Override
 	public void save(OutputStream os) throws IOException {
-		BufferedWriter w = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+		BufferedWriter w = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
 		for (ControlFile cur : contents.values()) {
 			w.append(cur.getContents()).append("\n");
 		}

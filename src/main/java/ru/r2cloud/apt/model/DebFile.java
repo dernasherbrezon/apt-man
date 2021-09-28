@@ -3,10 +3,8 @@ package ru.r2cloud.apt.model;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.compress.archivers.ArchiveException;
@@ -49,7 +47,7 @@ public class DebFile {
 		return result;
 	}
 
-	private static ControlFile readControl(File file) throws IOException, ArchiveException, UnsupportedEncodingException, FileNotFoundException {
+	private static ControlFile readControl(File file) throws IOException, ArchiveException {
 		ArArchiveEntry entry;
 		TarArchiveEntry controlEntry;
 		try (ArchiveInputStream debStream = new ArchiveStreamFactory().createArchiveInputStream("ar", new FileInputStream(file))) {
