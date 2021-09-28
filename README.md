@@ -30,3 +30,14 @@ repo.saveFiles(Collections.singletonList(new DebFile(new File("rtl-sdr_0.6_armhf
 repo.deletePackages(Collections.singleton("rtl-sdr"));
 repo.cleanup(1);
 ```
+
+# Maven
+
+
+```xml
+<dependency>
+	<groupId>ru.r2cloud</groupId>
+	<artifactId>apt-man</artifactId>
+	<version>1.0</version>
+</dependency>
+```
