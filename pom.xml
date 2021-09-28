@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ru.r2cloud</groupId>
 	<artifactId>apt-man</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0</version>
 	<url>https://github.com/dernasherbrezon/apt-man</url>
 	<name>apt-man</name>
 	<description>Library for managing APT repository</description>
