@@ -15,14 +15,10 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ru.r2cloud.apt.model.RemoteFile;
 
 public class FileTransport implements Transport {
-
-	private static final Logger LOG = LoggerFactory.getLogger(FileTransport.class);
 
 	private final File basedir;
 
@@ -98,19 +94,20 @@ public class FileTransport implements Transport {
 			// always use "/" because paths are based on "/"
 			curRemoteFile.setPath(path + cur.getName());
 			curRemoteFile.setLastModifiedTime(cur.lastModified());
+			curRemoteFile.setDirectory(cur.isDirectory());
 			result.add(curRemoteFile);
 		}
 		return result;
 	}
 
 	@Override
-	public void delete(String path) {
+	public void delete(String path) throws IOException {
 		File fileToDelete = new File(basedir, path);
 		if (!fileToDelete.exists()) {
 			return;
 		}
 		if (!fileToDelete.delete()) {
-			LOG.error("unable to delete: {}", fileToDelete.getAbsolutePath());
+			throw new IOException("unable to delete: " + fileToDelete.getAbsolutePath());
 		}
 	}
 

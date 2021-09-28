@@ -2,6 +2,7 @@ package ru.r2cloud.apt;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import ru.r2cloud.apt.model.DebFile;
 
@@ -12,7 +13,7 @@ import ru.r2cloud.apt.model.DebFile;
  * GpgSigner signer = new GpgSignerImpl(config);
  * Transport transport = new FileTransport("./apt-basedir/");
  * AptRepository repository = new AptRepositoryImpl(codename, component, signer, transport);
- * repository.saveFile(new DebFile(new File("some.deb")));
+ * repository.saveFiles(Collections.singletonList(new DebFile(new File("some.deb"))));
  * }
  * </pre>
  * 
@@ -32,17 +33,18 @@ public interface AptRepository {
 	void saveFiles(List<DebFile> debFiles) throws IOException;
 
 	/**
-	 * Convenient method for saving single file. Under the hood it will call {@link ru.r2cloud.apt.AptRepository#saveFiles(List) }
-	 * @param debFile - .deb file to save into apt repository
-	 * @throws IOException - on any error
-	 */
-	void saveFile(DebFile debFile) throws IOException;
-	
-	/**
 	 * Remove unused files from the repository.
 	 * @param keepLast - keep last number of files in each category
 	 * @throws IOException - on any error
 	 */
-	void cleanup(int keepLast) throws IOException; 
+	void cleanup(int keepLast) throws IOException;
+	
+	/**
+	 * Delete packages and update the index.
+	 * 
+	 * @param packages - packages to remove
+	 * @throws IOException - on any error
+	 */
+	void deletePackages(Set<String> packages) throws IOException;
 
 }

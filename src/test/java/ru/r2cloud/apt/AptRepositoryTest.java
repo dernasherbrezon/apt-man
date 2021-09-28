@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,7 +33,7 @@ public class AptRepositoryTest {
 	public void testSuccess() throws Exception {
 		FileTransport transport = new FileTransport(tempFolder.getRoot().getAbsolutePath());
 		AptRepository aptMan = new AptRepositoryImpl("codename", "component", null, transport);
-		aptMan.saveFile(new DebFile(new File("src/test/resources/rtl-sdr_0.6git_armhf.deb")));
+		aptMan.saveFiles(Collections.singletonList(new DebFile(new File("src/test/resources/rtl-sdr_0.6git_armhf.deb"))));
 		assertFiles(new File("src/test/resources/expected"), tempFolder.getRoot());
 	}
 
@@ -40,14 +41,29 @@ public class AptRepositoryTest {
 	public void testCleanup() throws Exception {
 		FileTransport transport = new FileTransport(tempFolder.getRoot().getAbsolutePath());
 		AptRepository aptMan = new AptRepositoryImpl("codename", "component", null, transport);
-		aptMan.saveFile(new DebFile(new File("src/test/resources/rtl-sdr_0.6git_armhf.deb")));
-		aptMan.saveFile(new DebFile(new File("src/test/resources/rtl-sdr_0.6_armhf.deb")));
+		aptMan.saveFiles(Collections.singletonList(new DebFile(new File("src/test/resources/rtl-sdr_0.6git_armhf.deb"))));
+		aptMan.saveFiles(Collections.singletonList(new DebFile(new File("src/test/resources/rtl-sdr_0.6_armhf.deb"))));
 		aptMan.cleanup(2);
 		assertFilesInDirectory(tempFolder.getRoot().getAbsolutePath() + File.separator + "pool" + File.separator + "component" + File.separator + "r" + File.separator + "rtl-sdr", "rtl-sdr_0.6git_armhf.deb", "rtl-sdr_0.6_armhf.deb");
 		aptMan.cleanup(1);
 		assertFilesInDirectory(tempFolder.getRoot().getAbsolutePath() + File.separator + "dists" + File.separator + "codename" + File.separator + "component" + File.separator + "binary-armhf" + File.separator + "by-hash" + File.separator + "MD5Sum", "65ebfe0e459b7c7a12d1584df17ff054",
 				"4b21caa7442e0cae48c1d8485209a0b4");
 		assertFilesInDirectory(tempFolder.getRoot().getAbsolutePath() + File.separator + "pool" + File.separator + "component" + File.separator + "r" + File.separator + "rtl-sdr", "rtl-sdr_0.6_armhf.deb");
+	}
+
+	@Test
+	public void testDelete() throws Exception {
+		FileTransport transport = new FileTransport(tempFolder.getRoot().getAbsolutePath());
+		AptRepository aptMan = new AptRepositoryImpl("codename", "component", null, transport);
+		aptMan.saveFiles(Collections.singletonList(new DebFile(new File("src/test/resources/rtl-sdr_0.6git_armhf.deb"))));
+		aptMan.deletePackages(Collections.singleton("rtl-sdr"));
+		assertDirectoryEmpty(tempFolder.getRoot().getAbsolutePath() + File.separator + "pool" + File.separator + "component" + File.separator + "r");
+	}
+
+	private static void assertDirectoryEmpty(String directory) {
+		File dir = new File(directory);
+		assertTrue(dir.isDirectory());
+		assertEquals(0, dir.listFiles().length);
 	}
 
 	private static void assertFilesInDirectory(String basepath, String... filenames) {

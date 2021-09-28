@@ -33,6 +33,6 @@ public interface Transport {
 
 	List<RemoteFile> listFiles(String path);
 
-	void delete(String path);
+	void delete(String path) throws IOException;
 
 }
