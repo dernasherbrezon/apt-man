@@ -305,7 +305,6 @@ public class AptRepositoryImpl implements AptRepository {
 		try {
 			transport.load(getReleasePath(), result);
 		} catch (ResourceDoesNotExistException e) {
-			LOG.info("create missing file: {}", getReleasePath());
 			result.setCodename(codename);
 			result.setLabel(codename);
 			result.setOrigin(codename);
@@ -324,7 +323,6 @@ public class AptRepositoryImpl implements AptRepository {
 			result.setArchitecture(arch);
 			return result;
 		} catch (Exception e) {
-			LOG.info("create missing file: {}", path);
 			Packages newPackages = new Packages();
 			newPackages.setArchitecture(arch);
 			return newPackages;

@@ -74,6 +74,13 @@ public class AptRepositoryTest {
 		aptMan.saveFiles(Collections.singletonList(new DebFile(new File("src/test/resources/rtl-sdr_0.6git_armhf.deb"))));
 	}
 
+	@Test
+	public void testDeleteUnknown() throws Exception {
+		FileTransport transport = new FileTransport(tempFolder.getRoot().getAbsolutePath());
+		AptRepository aptMan = new AptRepositoryImpl("codename", "component", null, transport);
+		aptMan.deletePackages(Collections.singleton(UUID.randomUUID().toString()));
+	}
+
 	private static void assertDirectoryEmpty(String directory) {
 		File dir = new File(directory);
 		assertTrue(dir.isDirectory());
