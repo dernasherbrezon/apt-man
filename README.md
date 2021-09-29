@@ -9,6 +9,7 @@ Library for managing APT repository. This library is lightweight and can be embe
   * Save .deb files. Simply upload multiple .deb files into APT repository.
   * Cleanup repository. Delete unused files from APT repository.
   * Delete packages. Some packages can be no longer needed into the repository or moved somewhere else.
+  * Support [by-hash](https://wiki.ubuntu.com/AptByHash) in APT repositories.
   
 # Extending
 
