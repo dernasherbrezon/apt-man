@@ -33,22 +33,28 @@ public class GpgSignerImpl implements GpgSigner {
 	public void signAndSave(String path, Release release, boolean clearsign, Transport transport) throws IOException {
 		StringBuilder command = new StringBuilder();
 		command.append(signConfig.getGpgCommand());
+		command.append(" ");
 		if (signConfig.getGpgArguments() != null) {
 			for (String cur : signConfig.getGpgArguments()) {
-				command.append(" ").append(cur).append(" ");
+				command.append(cur).append(" ");
 			}
 		}
-		command.append(" --local-user ");
+		command.append("--local-user ");
 		command.append(signConfig.getKeyname());
 		command.append(" --armor --detach-sign --batch --no-tty --passphrase ");
 		command.append(signConfig.getPassphrase());
 		if (clearsign) {
-			command.append(" --clearsign ");
+			command.append(" --clearsign");
 		}
 		ProcessBuilder pb = new ProcessBuilder(command.toString().split(" "));
 		Process proc = pb.start();
-		release.save(proc.getOutputStream());
-		proc.getOutputStream().close();
+		IOException exceptionDuringSave = null;
+		try {
+			release.save(proc.getOutputStream());
+			proc.getOutputStream().close();
+		} catch (IOException e) {
+			exceptionDuringSave = e;
+		}
 		StringBuilder error = new StringBuilder();
 		String curLine = null;
 		BufferedReader r = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
@@ -74,8 +80,17 @@ public class GpgSignerImpl implements GpgSigner {
 			Thread.currentThread().interrupt();
 			throw new IOException("unable to wait for process completion");
 		}
-		if (code != 0 && LOG.isErrorEnabled()) {
+		if (LOG.isErrorEnabled()) {
 			LOG.error("unable to sign: {}", error.toString().trim());
+		}
+		if (code != 0) {
+			throw new IOException("unable to sign");
+		}
+		// this is normally caused by incorrect arguments
+		// in that case code != 0
+		// but save and re-throw just in case code == 0
+		if (exceptionDuringSave != null) {
+			throw exceptionDuringSave;
 		}
 	}
 
