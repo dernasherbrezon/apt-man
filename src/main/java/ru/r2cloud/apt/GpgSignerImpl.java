@@ -33,6 +33,11 @@ public class GpgSignerImpl implements GpgSigner {
 	public void signAndSave(String path, Release release, boolean clearsign, Transport transport) throws IOException {
 		StringBuilder command = new StringBuilder();
 		command.append(signConfig.getGpgCommand());
+		if (signConfig.getGpgArguments() != null) {
+			for (String cur : signConfig.getGpgArguments()) {
+				command.append(" ").append(cur).append(" ");
+			}
+		}
 		command.append(" --local-user ");
 		command.append(signConfig.getKeyname());
 		command.append(" --armor --detach-sign --batch --no-tty --passphrase ");

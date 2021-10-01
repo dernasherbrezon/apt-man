@@ -1,10 +1,21 @@
 package ru.r2cloud.apt.model;
 
+import java.util.List;
+
 public class SignConfiguration {
 
 	private String gpgCommand;
 	private String keyname;
 	private String passphrase;
+	private List<String> gpgArguments;
+	
+	public List<String> getGpgArguments() {
+		return gpgArguments;
+	}
+	
+	public void setGpgArguments(List<String> gpgArguments) {
+		this.gpgArguments = gpgArguments;
+	}
 
 	public String getGpgCommand() {
 		return gpgCommand;
