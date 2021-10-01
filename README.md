@@ -39,6 +39,6 @@ repo.cleanup(1);
 <dependency>
 	<groupId>ru.r2cloud</groupId>
 	<artifactId>apt-man</artifactId>
-	<version>1.0</version>
+	<version>1.2</version>
 </dependency>
 ```
