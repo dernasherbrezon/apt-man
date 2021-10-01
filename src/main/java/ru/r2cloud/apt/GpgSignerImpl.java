@@ -35,7 +35,7 @@ public class GpgSignerImpl implements GpgSigner {
 		command.append(signConfig.getGpgCommand());
 		command.append(" --local-user ");
 		command.append(signConfig.getKeyname());
-		command.append(" --armor --detach-sign --batch --passphrase ");
+		command.append(" --armor --detach-sign --batch --no-tty --passphrase ");
 		command.append(signConfig.getPassphrase());
 		if (clearsign) {
 			command.append(" --clearsign ");
