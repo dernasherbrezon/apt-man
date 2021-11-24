@@ -47,6 +47,10 @@ public class AptRepositoryImpl implements AptRepository {
 
 	@Override
 	public void saveFiles(List<DebFile> debFiles) throws IOException {
+		if (debFiles.isEmpty()) {
+			LOG.info("no files to save. skipping...");
+			return;
+		}
 		Map<Architecture, Packages> packagesPerArch = new HashMap<>();
 
 		for (DebFile f : debFiles) {
@@ -169,6 +173,10 @@ public class AptRepositoryImpl implements AptRepository {
 
 	@Override
 	public void deletePackages(Set<String> packages) throws IOException {
+		if (packages.isEmpty()) {
+			LOG.info("no packages to delete. skipping...");
+			return;
+		}
 		Release release = loadRelease();
 
 		List<Packages> toUpdate = new ArrayList<>();
