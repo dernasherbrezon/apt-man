@@ -110,6 +110,10 @@ public class AptRepositoryImpl implements AptRepository {
 
         List<Packages> emptyPackages = new ArrayList<>(architectures.length);
         for (Architecture cur : architectures) {
+            Packages oldPackages = loadPackagesOrNull(cur);
+            if (oldPackages != null && !oldPackages.getContents().isEmpty()) {
+                throw new IOException("repository is not empty: " + cur + " number of packages: " + oldPackages.getContents().size());
+            }
             release.getArchitectures().add(cur.name().toLowerCase(Locale.UK));
 
             Packages curPackages = new Packages();
@@ -343,6 +347,18 @@ public class AptRepositoryImpl implements AptRepository {
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         result.setDate(sdf.format(new Date()));
         return result;
+    }
+
+    private Packages loadPackagesOrNull(Architecture arch) throws IOException {
+        String path = getPackagesPath(arch) + ".gz";
+        try {
+            Packages result = new Packages();
+            transport.loadGzipped(path, result);
+            result.setArchitecture(arch);
+            return result;
+        } catch (ResourceDoesNotExistException e) {
+            return null;
+        }
     }
 
     private Packages loadPackages(Architecture arch) {

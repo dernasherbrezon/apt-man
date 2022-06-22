@@ -40,6 +40,13 @@ public class AptRepositoryTest {
         assertFiles(new File("src/test/resources/expectedInit"), tempFolder.getRoot());
     }
 
+    @Test(expected = IOException.class)
+    public void testInitNonEmptyRepository() throws Exception {
+        FileTransport transport = new FileTransport("src/test/resources/expected");
+        AptRepository aptMan = new AptRepositoryImpl("codename", "component", null, transport);
+        aptMan.init(Architecture.ARMHF);
+    }
+
     @Test
     public void testSuccess() throws Exception {
         FileTransport transport = new FileTransport(tempFolder.getRoot().getAbsolutePath());
