@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+import ru.r2cloud.apt.model.Architecture;
 import ru.r2cloud.apt.model.DebFile;
 
 /**
@@ -38,6 +39,13 @@ public interface AptRepository {
 	 * @throws IOException - on any error
 	 */
 	void cleanup(int keepLast) throws IOException;
+
+	/**
+	 * Init empty repository for the architectures provided.
+	 * @param architectures - one or more architectures
+	 * @throws IOException - on any error
+	 */
+	void init(Architecture ... architectures) throws IOException;
 	
 	/**
 	 * Delete packages and update the index.

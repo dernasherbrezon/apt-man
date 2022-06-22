@@ -1,0 +1,16 @@
+Origin: codename
+Label: codename
+Codename: codename
+Date: Wed, 22 Jun 2022 17:32:09 UTC
+Architectures: armhf
+Components: component
+Acquire-By-Hash: yes
+MD5Sum:
+ 3970e82605c7d109bb348fc94e9eecc0 20 component/binary-armhf/Packages.gz
+ d41d8cd98f00b204e9800998ecf8427e 0 component/binary-armhf/Packages
+SHA1:
+ e03849ea786b9f7b28a35c17949e85a93eb1cff1 20 component/binary-armhf/Packages.gz
+ da39a3ee5e6b4b0d3255bfef95601890afd80709 0 component/binary-armhf/Packages
+SHA256:
+ f5d031af01f137ae07fa71720fab94d16cc8a2a59868766002918b7c240f3967 20 component/binary-armhf/Packages.gz
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 component/binary-armhf/Packages
