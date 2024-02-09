@@ -13,6 +13,7 @@ import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.ar.ArArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
+import org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +61,8 @@ public class DebFile {
 					is = new GZIPInputStream(debStream);
 				} else if (entry.getName().endsWith(".xz")) {
 					is = new XZCompressorInputStream(debStream);
+				} else if( entry.getName().endsWith(".zst") ) {
+					is = new ZstdCompressorInputStream(debStream);
 				} else {
 					throw new ArchiveException("unsupported archive type: " + entry.getName());
 				}
