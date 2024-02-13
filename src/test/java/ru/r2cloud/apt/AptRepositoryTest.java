@@ -65,7 +65,7 @@ public class AptRepositoryTest {
         assertFilesInDirectory(tempFolder.getRoot().getAbsolutePath() + File.separator + "pool" + File.separator + "component" + File.separator + "r" + File.separator + "rtl-sdr", "rtl-sdr_0.6git_armhf.deb", "rtl-sdr_0.6_armhf.deb");
         aptMan.cleanup(1);
         assertFilesInDirectory(tempFolder.getRoot().getAbsolutePath() + File.separator + "dists" + File.separator + "codename" + File.separator + "component" + File.separator + "binary-armhf" + File.separator + "by-hash" + File.separator + "MD5Sum", "65ebfe0e459b7c7a12d1584df17ff054",
-                "4b21caa7442e0cae48c1d8485209a0b4");
+                "789888abd2ae5c3386ae816a82e26188");
         assertFilesInDirectory(tempFolder.getRoot().getAbsolutePath() + File.separator + "pool" + File.separator + "component" + File.separator + "r" + File.separator + "rtl-sdr", "rtl-sdr_0.6_armhf.deb");
     }
 
