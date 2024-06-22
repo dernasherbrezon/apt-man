@@ -10,6 +10,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<logversion>1.7.12</logversion>
+		<bouncycastle.version>1.76</bouncycastle.version>
 	</properties>
 
 	<dependencies>
@@ -40,7 +41,11 @@
 			<artifactId>zstd-jni</artifactId>
 			<version>1.5.5-10</version>
 		</dependency>
-		
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpg-jdk18on</artifactId>
+            <version>${bouncycastle.version}</version>
+        </dependency>		
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

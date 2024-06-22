@@ -8,6 +8,24 @@ public class SignConfiguration {
 	private String keyname;
 	private String passphrase;
 	private List<String> gpgArguments;
+	private String secretKeyFilename;
+	private String hashAlgorithm;
+	
+	public String getSecretKeyFilename() {
+		return secretKeyFilename;
+	}
+	
+	public void setSecretKeyFilename(String secretKeyFilename) {
+		this.secretKeyFilename = secretKeyFilename;
+	}
+	
+	public String getHashAlgorithm() {
+		return hashAlgorithm;
+	}
+	
+	public void setHashAlgorithm(String hashAlgorithm) {
+		this.hashAlgorithm = hashAlgorithm;
+	}
 	
 	public List<String> getGpgArguments() {
 		return gpgArguments;
