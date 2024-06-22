@@ -63,17 +63,7 @@ public class AptRepositoryImpl implements AptRepository {
 			controlFile.append("MD5sum: " + fileInfo.getMd5());
 			controlFile.append("SHA1: " + fileInfo.getSha1());
 			controlFile.append("SHA256: " + fileInfo.getSha256());
-			Set<Architecture> archs = new HashSet<>();
-			if (controlFile.getArch().isWildcard()) {
-				for (Architecture cur : Architecture.values()) {
-					if (cur.isWildcard()) {
-						continue;
-					}
-					archs.add(cur);
-				}
-			} else {
-				archs.add(controlFile.getArch());
-			}
+			Set<Architecture> archs = readArchs(controlFile);
 
 			for (Architecture cur : archs) {
 				Packages curPackages = packagesPerArch.get(cur);
@@ -279,6 +269,21 @@ public class AptRepositoryImpl implements AptRepository {
 				LOG.error("unable to delete: {}", pathToDelete, e);
 			}
 		}
+	}
+	
+	private static Set<Architecture> readArchs(ControlFile controlFile) {
+		Set<Architecture> result = new HashSet<>();
+		if (controlFile.getArch().isWildcard()) {
+			for (Architecture cur : Architecture.values()) {
+				if (cur.isWildcard()) {
+					continue;
+				}
+				result.add(cur);
+			}
+		} else {
+			result.add(controlFile.getArch());
+		}
+		return result;
 	}
 
 	private static String extractParentPath(String filename) {
