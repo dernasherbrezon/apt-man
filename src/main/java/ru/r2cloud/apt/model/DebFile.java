@@ -14,7 +14,7 @@ import org.apache.commons.compress.archivers.ar.ArArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 import org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream;
-import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public class DebFile {
 	private static ControlFile readControl(File file) throws IOException, ArchiveException {
 		ArArchiveEntry entry;
 		TarArchiveEntry controlEntry;
-		try (ArchiveInputStream debStream = new ArchiveStreamFactory().createArchiveInputStream("ar", new FileInputStream(file))) {
+		try (ArchiveInputStream<?> debStream = new ArchiveStreamFactory().createArchiveInputStream("ar", new FileInputStream(file))) {
 			while ((entry = (ArArchiveEntry) debStream.getNextEntry()) != null) {
 				if (!entry.getName().startsWith("control.tar.")) {
 					continue;
@@ -66,7 +66,7 @@ public class DebFile {
 				} else {
 					throw new ArchiveException("unsupported archive type: " + entry.getName());
 				}
-				try (ArchiveInputStream controlTgz = new ArchiveStreamFactory().createArchiveInputStream("tar", is)) {
+				try (ArchiveInputStream<?> controlTgz = new ArchiveStreamFactory().createArchiveInputStream("tar", is)) {
 					while ((controlEntry = (TarArchiveEntry) controlTgz.getNextEntry()) != null) {
 						LOG.debug("control entry: {}", controlEntry.getName());
 						if (!controlEntry.getName().equals("./control") && !controlEntry.getName().equals("control")) {
