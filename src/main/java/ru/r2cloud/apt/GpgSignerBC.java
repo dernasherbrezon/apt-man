@@ -13,6 +13,7 @@ import java.util.Locale;
 
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.BCPGOutputStream;
+import org.bouncycastle.bcpg.HashAlgorithmTags;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPPrivateKey;
@@ -222,15 +223,15 @@ public class GpgSignerBC implements GpgSigner {
 
 	private static int convertHashAlgorithm(String digestName) {
 		if (digestName.equals("SHA256")) {
-			return PGPUtil.SHA256;
+			return HashAlgorithmTags.SHA256;
 		} else if (digestName.equals("SHA384")) {
-			return PGPUtil.SHA384;
+			return HashAlgorithmTags.SHA384;
 		} else if (digestName.equals("SHA512")) {
-			return PGPUtil.SHA512;
+			return HashAlgorithmTags.SHA512;
 		} else if (digestName.equals("MD5")) {
-			return PGPUtil.MD5;
+			return HashAlgorithmTags.MD5;
 		} else if (digestName.equals("RIPEMD160")) {
-			return PGPUtil.RIPEMD160;
+			return HashAlgorithmTags.RIPEMD160;
 		} else {
 			throw new IllegalArgumentException("unsupported algorithm: " + digestName);
 		}
