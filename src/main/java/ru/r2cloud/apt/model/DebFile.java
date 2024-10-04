@@ -41,7 +41,7 @@ public class DebFile {
 
 	private static FileInfo calculateFileInfo(File file2) throws IOException {
 		FileInfo result = new FileInfo();
-		result.setSize(String.valueOf(file2.length()));
+		result.setSize(file2.length());
 		try (InputStream is = new FileInputStream(file2)) {
 			result.load(is);
 		}
@@ -61,7 +61,7 @@ public class DebFile {
 					is = new GZIPInputStream(debStream);
 				} else if (entry.getName().endsWith(".xz")) {
 					is = new XZCompressorInputStream(debStream);
-				} else if( entry.getName().endsWith(".zst") ) {
+				} else if (entry.getName().endsWith(".zst")) {
 					is = new ZstdCompressorInputStream(debStream);
 				} else {
 					throw new ArchiveException("unsupported archive type: " + entry.getName());

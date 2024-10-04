@@ -8,10 +8,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -29,6 +31,8 @@ import ru.r2cloud.apt.model.FileInfo;
 import ru.r2cloud.apt.model.Packages;
 import ru.r2cloud.apt.model.Release;
 import ru.r2cloud.apt.model.RemoteFile;
+import ru.r2cloud.apt.model.ValidationError;
+import ru.r2cloud.apt.model.ValidationErrorCode;
 
 public class AptRepositoryImpl implements AptRepository {
 
@@ -116,8 +120,6 @@ public class AptRepositoryImpl implements AptRepository {
 	}
 
 	private void reindex(Release release, Collection<Packages> packages) throws IOException {
-		// force using by-hash
-		release.setByHash(true);
 		// retain old fileinfo
 		Map<String, FileInfo> fileinfoByFilename = new HashMap<>();
 		for (FileInfo cur : release.getFiles()) {
@@ -130,6 +132,12 @@ public class AptRepositoryImpl implements AptRepository {
 			}
 		}
 		release.setFiles(new HashSet<>(fileinfoByFilename.values()));
+		reindex(release);
+	}
+
+	private void reindex(Release release) throws IOException {
+		// force using by-hash
+		release.setByHash(true);
 
 		saveWithLog(getReleasePath(), release);
 
@@ -239,6 +247,164 @@ public class AptRepositoryImpl implements AptRepository {
 		}
 	}
 
+	@Override
+	public void deleteArchitectures(Architecture... architectures) throws IOException {
+		if (architectures == null || architectures.length == 0) {
+			LOG.info("no architectures provided. skipping...");
+			return;
+		}
+		Release release = new Release();
+		try {
+			transport.load(getReleasePath(), release);
+		} catch (ResourceDoesNotExistException e) {
+			LOG.info("can't find release");
+			return;
+		}
+
+		Set<String> toDelete = new HashSet<>();
+		for (Architecture cur : architectures) {
+			String packagePath = getPackagesPath(cur);
+			String packagePathGz = getPackagesPath(cur) + ".gz";
+			FileInfo info = null;
+			FileInfo gzippedInfo = null;
+			Iterator<FileInfo> it = release.getFiles().iterator();
+			while (it.hasNext()) {
+				FileInfo curFile = it.next();
+				String curFilename = "dists/" + release.getCodename() + "/" + curFile.getFilename();
+				if (curFilename.equalsIgnoreCase(packagePath)) {
+					info = curFile;
+					it.remove();
+				} else if (curFilename.equalsIgnoreCase(packagePathGz)) {
+					gzippedInfo = curFile;
+					it.remove();
+				}
+			}
+
+			markForDeletion(toDelete, packagePath, info, cur, release);
+			markForDeletion(toDelete, packagePathGz, gzippedInfo, cur, release);
+			release.getArchitectures().remove(cur.toString().toLowerCase(Locale.UK));
+		}
+
+		if (toDelete.isEmpty()) {
+			LOG.info("can't find files to delete. looks good");
+			return;
+		}
+		reindex(release);
+
+		for (String cur : toDelete) {
+			LOG.info("deleting: {}", cur);
+			transport.delete(cur);
+		}
+	}
+
+	private void markForDeletion(Set<String> toDelete, String path, FileInfo info, Architecture arch, Release release) throws IOException {
+		if (info == null) {
+			return;
+		}
+		toDelete.add(path);
+		if (release.isByHash()) {
+			String byHashPrefix = "dists/" + codename + "/" + component + "/binary-" + arch.toString().toLowerCase(Locale.UK) + "/by-hash";
+			toDelete.add(byHashPrefix + "/MD5Sum/" + info.getMd5());
+			toDelete.add(byHashPrefix + "/SHA1/" + info.getSha1());
+			toDelete.add(byHashPrefix + "/SHA256/" + info.getSha256());
+		}
+
+		Packages packages = new Packages();
+		try {
+			if (info.getFilename().endsWith("gz")) {
+				transport.loadGzipped(path, packages);
+			} else {
+				transport.load(path, packages);
+			}
+		} catch (ResourceDoesNotExistException e) {
+			return;
+		}
+
+		for (ControlFile cur : packages.getContents().values()) {
+			toDelete.add(cur.getFilename());
+		}
+	}
+
+	@Override
+	public List<ValidationError> validate() {
+		Release release = new Release();
+		try {
+			transport.load(getReleasePath(), release);
+		} catch (ResourceDoesNotExistException e) {
+			return Collections.singletonList(new ValidationError(ValidationErrorCode.RESOURCE_IS_MISSING, "repository is missing: " + codename));
+		} catch (IOException e) {
+			return Collections.singletonList(new ValidationError(ValidationErrorCode.COMMUNICATION_FAILURE, "cannot connect to " + codename));
+		}
+		Set<ValidationError> result = new HashSet<>();
+		for (String arch : release.getArchitectures()) {
+			Architecture curArch = Architecture.valueOf(arch.toUpperCase(Locale.UK));
+			validate(result, getPackagesPath(curArch), curArch, release);
+			validate(result, getPackagesPath(curArch) + ".gz", curArch, release);
+		}
+		List<ValidationError> sorted = new ArrayList<>(result);
+		Collections.sort(sorted, new Comparator<ValidationError>() {
+			@Override
+			public int compare(ValidationError o1, ValidationError o2) {
+				return o1.getMessage().compareTo(o2.getMessage());
+			}
+		});
+		return sorted;
+	}
+
+	private void validate(Set<ValidationError> errors, String path, Architecture arch, Release release) {
+		FileInfo info = findPackageInfo(path, release);
+		if (info == null) {
+			errors.add(new ValidationError(ValidationErrorCode.RESOURCE_IS_MISSING, "can't find: " + path));
+			return;
+		}
+		if (release.isByHash()) {
+			String byHashPrefix = "dists/" + codename + "/" + component + "/binary-" + arch.toString().toLowerCase(Locale.UK) + "/by-hash";
+			validate(errors, byHashPrefix + "/MD5Sum/" + info.getMd5(), info.getSize());
+			validate(errors, byHashPrefix + "/SHA1/" + info.getSha1(), info.getSize());
+			validate(errors, byHashPrefix + "/SHA256/" + info.getSha256(), info.getSize());
+		}
+		if (!validate(errors, path, info.getSize())) {
+			return;
+		}
+		Packages packages = new Packages();
+		try {
+			if (info.getFilename().endsWith("gz")) {
+				transport.loadGzipped(path, packages);
+			} else {
+				transport.load(path, packages);
+			}
+			packages.setArchitecture(arch);
+		} catch (ResourceDoesNotExistException e) {
+			errors.add(new ValidationError(ValidationErrorCode.RESOURCE_IS_MISSING, "can't find: " + info.getFilename()));
+			return;
+		} catch (IOException e) {
+			errors.add(new ValidationError(ValidationErrorCode.COMMUNICATION_FAILURE, "cannot read " + info.getFilename()));
+			return;
+		}
+
+		for (ControlFile cur : packages.getContents().values()) {
+			validate(errors, cur.getFilename(), cur.getSize());
+		}
+
+	}
+
+	private boolean validate(Set<ValidationError> errors, String path, long expectedSize) {
+		try {
+			long fileSize = transport.getFileSize(path);
+			if (fileSize != expectedSize) {
+				errors.add(new ValidationError(ValidationErrorCode.MISMATCHED_FILE_SIZE, "mismatched file size: " + path + " actual: " + fileSize + " expected: " + expectedSize));
+				return false;
+			}
+			return true;
+		} catch (IOException e) {
+			errors.add(new ValidationError(ValidationErrorCode.COMMUNICATION_FAILURE, "cannot read file size " + path));
+			return false;
+		} catch (ResourceDoesNotExistException e) {
+			errors.add(new ValidationError(ValidationErrorCode.RESOURCE_IS_MISSING, "file is missing: " + path));
+			return false;
+		}
+	}
+
 	private static List<RemoteFile> filterByName(List<RemoteFile> allFiles, Set<String> indexedIgnore) {
 		List<RemoteFile> result = new ArrayList<>();
 		for (RemoteFile cur : allFiles) {
@@ -270,7 +436,7 @@ public class AptRepositoryImpl implements AptRepository {
 			}
 		}
 	}
-	
+
 	private static Set<Architecture> readArchs(ControlFile controlFile) {
 		Set<Architecture> result = new HashSet<>();
 		if (controlFile.getArch().isWildcard()) {
@@ -310,7 +476,7 @@ public class AptRepositoryImpl implements AptRepository {
 		packages.save(baos);
 		byte[] data = baos.toByteArray();
 		FileInfo fileInfo = new FileInfo();
-		fileInfo.setSize(String.valueOf(data.length));
+		fileInfo.setSize(data.length);
 		fileInfo.load(new ByteArrayInputStream(data));
 		fileInfo.setFilename(getPackagesBasePath(packages.getArchitecture()));
 		result.add(fileInfo);
@@ -327,7 +493,7 @@ public class AptRepositoryImpl implements AptRepository {
 		}
 		data = baos.toByteArray();
 		fileInfo = new FileInfo();
-		fileInfo.setSize(String.valueOf(data.length));
+		fileInfo.setSize(data.length);
 		fileInfo.load(new ByteArrayInputStream(data));
 		fileInfo.setFilename(getPackagesBasePath(packages.getArchitecture()) + ".gz");
 		result.add(fileInfo);

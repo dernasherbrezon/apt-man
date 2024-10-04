@@ -6,9 +6,11 @@ import java.util.Set;
 
 import ru.r2cloud.apt.model.Architecture;
 import ru.r2cloud.apt.model.DebFile;
+import ru.r2cloud.apt.model.ValidationError;
 
 /**
  * Main entry point to the library. Typical program include:
+ * 
  * <pre>
  * {@code
  * GpgSigner signer = new GpgSignerImpl(config);
@@ -26,15 +28,18 @@ import ru.r2cloud.apt.model.DebFile;
 public interface AptRepository {
 
 	/**
-	 * Save multiple .deb files into apt repository. The version, architecture and the package name extracted from the .deb file.
+	 * Save multiple .deb files into apt repository. The version, architecture and
+	 * the package name extracted from the .deb file.
 	 * 
-	 * @param debFiles - list of .deb files. Create .deb file meta information using <code>DebFile file = new DebFile(new File("some.deb")</code>
+	 * @param debFiles - list of .deb files. Create .deb file meta information using
+	 *                 <code>DebFile file = new DebFile(new File("some.deb")</code>
 	 * @throws IOException - on any error
 	 */
 	void saveFiles(List<DebFile> debFiles) throws IOException;
 
 	/**
 	 * Remove unused files from the repository.
+	 * 
 	 * @param keepLast - keep last number of files in each category
 	 * @throws IOException - on any error
 	 */
@@ -42,11 +47,12 @@ public interface AptRepository {
 
 	/**
 	 * Init empty repository for the architectures provided.
+	 * 
 	 * @param architectures - one or more architectures
 	 * @throws IOException - on any error
 	 */
-	void init(Architecture ... architectures) throws IOException;
-	
+	void init(Architecture... architectures) throws IOException;
+
 	/**
 	 * Delete packages and update the index.
 	 * 
@@ -54,5 +60,20 @@ public interface AptRepository {
 	 * @throws IOException - on any error
 	 */
 	void deletePackages(Set<String> packages) throws IOException;
+
+	/**
+	 * Delete unused or incorrectly configured architectures
+	 * 
+	 * @param architectures
+	 * @throws IOException
+	 */
+	void deleteArchitectures(Architecture... architectures) throws IOException;
+
+	/**
+	 * Validate repository structure.
+	 * 
+	 * @return list of errors if any
+	 */
+	List<ValidationError> validate();
 
 }

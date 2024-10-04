@@ -1,0 +1,23 @@
+Origin: codename
+Label: codename
+Codename: codename
+Date: Tue, 13 Feb 2024 20:42:07 UTC
+Architectures: armhf amd64
+Components: component
+Acquire-By-Hash: yes
+MD5Sum:
+ 463edb31a827506f01964ed0a2637579 670 component/binary-armhf/Packages.gz
+ 0ddfc850203245799f3eb18491eaa983 1217 component/binary-armhf/Packages
+ 463edb31a827506f01964ed0a2637579 670 component/binary-amd64/Packages.gz
+ 0ddfc850203245799f3eb18491eaa983 1217 component/binary-amd64/Packages
+SHA1:
+ 31e4ee675bbc4a8076c71c4158dfbf1eff8c28fa 670 component/binary-armhf/Packages.gz
+ 948ae3a504393b3a6e3335ffaff72b30ef393ed7 1217 component/binary-armhf/Packages
+ 31e4ee675bbc4a8076c71c4158dfbf1eff8c28fa 670 component/binary-amd64/Packages.gz
+ 948ae3a504393b3a6e3335ffaff72b30ef393ed7 1217 component/binary-amd64/Packages
+SHA256:
+ 8ff3893af538624d8882a7ccac79836ec2725e8a51ffef81a91e104da6677ec4 670 component/binary-armhf/Packages.gz
+ cc2349c05fbc7c8ad53625834ca9b1eff3a7876191719fe55c4c0ede7f7510a5 1217 component/binary-armhf/Packages
+ 8ff3893af538624d8882a7ccac79836ec2725e8a51ffef81a91e104da6677ec4 670 component/binary-amd64/Packages.gz
+ cc2349c05fbc7c8ad53625834ca9b1eff3a7876191719fe55c4c0ede7f7510a5 1217 component/binary-amd64/Packages
+ 

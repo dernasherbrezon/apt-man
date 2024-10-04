@@ -80,6 +80,15 @@ public class FileTransport implements Transport {
 	}
 
 	@Override
+	public long getFileSize(String path) throws IOException, ResourceDoesNotExistException {
+		File file = new File(basedir, path);
+		if (!file.exists()) {
+			throw new ResourceDoesNotExistException();
+		}
+		return file.length();
+	}
+
+	@Override
 	public List<RemoteFile> listFiles(String path) {
 		if (!path.endsWith("/")) {
 			path += "/";
@@ -108,6 +117,20 @@ public class FileTransport implements Transport {
 			return;
 		}
 		Files.delete(fileToDelete.toPath());
+		deleteEmptyDirectory(basedir, fileToDelete.getParentFile());
+	}
+
+	private static void deleteEmptyDirectory(File basedir, File currentDirectory) throws IOException {
+		String[] otherFilesInTheCurrentDirectory = currentDirectory.list();
+		if (otherFilesInTheCurrentDirectory.length != 0) {
+			return;
+		}
+		if (basedir.getAbsolutePath().equalsIgnoreCase(currentDirectory.getAbsolutePath())) {
+			return;
+		}
+		File parent = currentDirectory.getParentFile();
+		Files.delete(currentDirectory.toPath());
+		deleteEmptyDirectory(basedir, parent);
 	}
 
 	private static void setupParentDir(File targetFile) throws IOException {

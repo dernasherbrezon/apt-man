@@ -7,8 +7,8 @@ import java.util.List;
 import ru.r2cloud.apt.model.RemoteFile;
 
 /**
- * Different protocols for working with apt
- * repositories. Some of them might include:
+ * Different protocols for working with apt repositories. Some of them might
+ * include:
  * <ul>
  * <li>File</li>
  * <li>Http</li>
@@ -30,6 +30,8 @@ public interface Transport {
 	void load(String path, IOCallback callback) throws IOException, ResourceDoesNotExistException;
 
 	void loadGzipped(String path, IOCallback callback) throws IOException, ResourceDoesNotExistException;
+
+	long getFileSize(String path) throws IOException, ResourceDoesNotExistException;
 
 	List<RemoteFile> listFiles(String path);
 

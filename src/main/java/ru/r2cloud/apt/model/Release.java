@@ -118,7 +118,7 @@ public class Release implements IOCallback {
 					if (info == null) {
 						info = new FileInfo();
 						info.setFilename(parts[2]);
-						info.setSize(parts[1]);
+						info.setSize(Long.valueOf(parts[1]));
 						fileInfoByFilename.put(info.getFilename(), info);
 					}
 					if (curGroup.equals("MD5Sum")) {
@@ -217,15 +217,15 @@ public class Release implements IOCallback {
 		if (!files.isEmpty()) {
 			w.append("MD5Sum:\n");
 			for (FileInfo cur : files) {
-				w.append(" ").append(cur.getMd5()).append(" ").append(cur.getSize()).append(" ").append(cur.getFilename()).append("\n");
+				w.append(" ").append(cur.getMd5()).append(" ").append(String.valueOf(cur.getSize())).append(" ").append(cur.getFilename()).append("\n");
 			}
 			w.append("SHA1:\n");
 			for (FileInfo cur : files) {
-				w.append(" ").append(cur.getSha1()).append(" ").append(cur.getSize()).append(" ").append(cur.getFilename()).append("\n");
+				w.append(" ").append(cur.getSha1()).append(" ").append(String.valueOf(cur.getSize())).append(" ").append(cur.getFilename()).append("\n");
 			}
 			w.append("SHA256:\n");
 			for (FileInfo cur : files) {
-				w.append(" ").append(cur.getSha256()).append(" ").append(cur.getSize()).append(" ").append(cur.getFilename()).append("\n");
+				w.append(" ").append(cur.getSha256()).append(" ").append(String.valueOf(cur.getSize())).append(" ").append(cur.getFilename()).append("\n");
 			}
 		}
 		w.flush();

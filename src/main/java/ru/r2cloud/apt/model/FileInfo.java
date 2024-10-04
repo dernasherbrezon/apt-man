@@ -13,7 +13,7 @@ public class FileInfo {
 	private String md5;
 	private String sha1;
 	private String sha256;
-	private String size;
+	private long size;
 	private String filename;
 
 	public void load(InputStream is) throws IOException {
@@ -64,11 +64,11 @@ public class FileInfo {
 		this.sha256 = sha256;
 	}
 
-	public String getSize() {
+	public long getSize() {
 		return size;
 	}
 
-	public void setSize(String size) {
+	public void setSize(long size) {
 		this.size = size;
 	}
 

@@ -4,14 +4,20 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ControlFile {
+
+	private static final Logger LOG = LoggerFactory.getLogger(ControlFile.class);
 
 	private String packageName;
 	private String version;
 	private Architecture arch;
 	private String contents;
 	private String filename;
-	
+	private long size;
+
 	private final Map<String, String> payload = new HashMap<>();
 
 	public Map<String, String> getPayload() {
@@ -49,7 +55,7 @@ public class ControlFile {
 	public void setArch(Architecture arch) {
 		this.arch = arch;
 	}
-	
+
 	public void setFilename(String filename) {
 		this.filename = filename;
 	}
@@ -86,7 +92,22 @@ public class ControlFile {
 				setFilename(value);
 				continue;
 			}
+			if (parts[0].equalsIgnoreCase("Size")) {
+				try {
+					setSize(Long.valueOf(value));
+				} catch (Exception e) {
+					LOG.error("invalid size value: " + value, e);
+				}
+			}
 		}
+	}
+
+	public long getSize() {
+		return size;
+	}
+
+	public void setSize(long size) {
+		this.size = size;
 	}
 
 	public void append(String str) {

@@ -13,10 +13,15 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -57,6 +62,16 @@ public class AptRepositoryTest {
 		FileTransport transport = new FileTransport(tempFolder.getRoot().getAbsolutePath());
 		AptRepository aptMan = new AptRepositoryImpl("codename", "component", null, transport);
 		aptMan.saveFiles(Collections.singletonList(new DebFile(new File("src/test/resources/rtl-sdr_0.6git_armhf.deb"))));
+		assertFiles(new File("src/test/resources/expected"), tempFolder.getRoot());
+		assertTrue(aptMan.validate().isEmpty());
+	}
+
+	@Test
+	public void testDeleteArch() throws Exception {
+		copyFolder(Paths.get("src/test/resources/inputArchDel"), tempFolder.getRoot().toPath());
+		FileTransport transport = new FileTransport(tempFolder.getRoot().getAbsolutePath());
+		AptRepository aptMan = new AptRepositoryImpl("codename", "component", null, transport);
+		aptMan.deleteArchitectures(Architecture.AMD64);
 		assertFiles(new File("src/test/resources/expected"), tempFolder.getRoot());
 	}
 
@@ -104,6 +119,9 @@ public class AptRepositoryTest {
 
 	private static void assertDirectoryEmpty(String directory) {
 		File dir = new File(directory);
+		if (!dir.exists()) {
+			return;
+		}
 		assertTrue(dir.isDirectory());
 		assertEquals(0, dir.listFiles().length);
 	}
@@ -166,9 +184,23 @@ public class AptRepositoryTest {
 		assertEquals(expected.isDirectory(), actual.isDirectory());
 		File[] expectedFiles = expected.listFiles();
 		File[] actualFiles = actual.listFiles();
-		assertEquals(expectedFiles.length, actualFiles.length);
+		assertEquals("at " + expected.getAbsolutePath(), expectedFiles.length, actualFiles.length);
 		for (int i = 0; i < expectedFiles.length; i++) {
 			assertFiles(expectedFiles[i], actualFiles[i]);
+		}
+	}
+
+	private static void copyFolder(Path src, Path dest) throws IOException {
+		try (Stream<Path> stream = Files.walk(src)) {
+			stream.forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+		}
+	}
+
+	private static void copy(Path source, Path dest) {
+		try {
+			Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
 
