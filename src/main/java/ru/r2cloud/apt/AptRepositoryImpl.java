@@ -136,6 +136,20 @@ public class AptRepositoryImpl implements AptRepository {
 	}
 
 	private void reindex(Release release) throws IOException {
+		String clearsignReleasePath = "dists/" + codename + "/InRelease";
+		if (signer == null) {
+			try {
+				long size = transport.getFileSize(clearsignReleasePath);
+				// getFileSize also checks if file exist
+				if (size != 0) {
+					LOG.error("repository is gpg signed, but no signing information provided");
+					return;
+				}
+			} catch (ResourceDoesNotExistException e) {
+				// do nothing
+			}
+		}
+
 		// force using by-hash
 		release.setByHash(true);
 
@@ -146,7 +160,6 @@ public class AptRepositoryImpl implements AptRepository {
 			LOG.info("uploading gpg release file: {}", gpgReleasePath);
 			signer.signAndSave(gpgReleasePath, release, false, transport);
 
-			String clearsignReleasePath = "dists/" + codename + "/InRelease";
 			LOG.info("uploading clearsign release file: {}", clearsignReleasePath);
 			signer.signAndSave(clearsignReleasePath, release, true, transport);
 		}
@@ -326,6 +339,29 @@ public class AptRepositoryImpl implements AptRepository {
 	}
 
 	@Override
+	public void sign() throws IOException {
+		if (signer == null) {
+			throw new IOException("cannot sign repository when no GPG configuration provided");
+		}
+
+		Release release = new Release();
+		try {
+			transport.load(getReleasePath(), release);
+		} catch (ResourceDoesNotExistException e) {
+			LOG.error("cannot sign non-existing repository");
+			return;
+		}
+
+		String gpgReleasePath = getReleasePath() + ".gpg";
+		LOG.info("uploading gpg release file: {}", gpgReleasePath);
+		signer.signAndSave(gpgReleasePath, release, false, transport);
+
+		String clearsignReleasePath = "dists/" + codename + "/InRelease";
+		LOG.info("uploading clearsign release file: {}", clearsignReleasePath);
+		signer.signAndSave(clearsignReleasePath, release, true, transport);
+	}
+
+	@Override
 	public List<ValidationError> validate() {
 		Release release = new Release();
 		try {
@@ -341,6 +377,18 @@ public class AptRepositoryImpl implements AptRepository {
 			validate(result, getPackagesPath(curArch), curArch, release);
 			validate(result, getPackagesPath(curArch) + ".gz", curArch, release);
 		}
+
+		String clearsignReleasePath = "dists/" + codename + "/InRelease";
+		String gpgReleasePath = getReleasePath() + ".gpg";
+
+		if (signer == null) {
+			validateNoGpgSinature(result, gpgReleasePath);
+			validateNoGpgSinature(result, clearsignReleasePath);
+		} else {
+			validateGpgSignature(result, gpgReleasePath, release, false);
+			validateGpgSignature(result, clearsignReleasePath, release, true);
+		}
+
 		List<ValidationError> sorted = new ArrayList<>(result);
 		Collections.sort(sorted, new Comparator<ValidationError>() {
 			@Override
@@ -349,6 +397,33 @@ public class AptRepositoryImpl implements AptRepository {
 			}
 		});
 		return sorted;
+	}
+
+	private void validateGpgSignature(Set<ValidationError> result, String path, Release release, boolean clearsign) {
+		try {
+			if (!signer.validate(path, release, clearsign, transport)) {
+				result.add(new ValidationError(ValidationErrorCode.GPG_SIGNATURE_FAILURE, "invalid gpg signature: " + path));
+			}
+		} catch (IOException e) {
+			result.add(new ValidationError(ValidationErrorCode.COMMUNICATION_FAILURE, "unable to read signature " + path));
+		} catch (ResourceDoesNotExistException e) {
+			// signing information provided, but repo doesn't have signature. i.e. unsigned
+			// repo. it's ok.
+		}
+	}
+
+	private void validateNoGpgSinature(Set<ValidationError> result, String path) {
+		try {
+			long size = transport.getFileSize(path);
+			// getFileSize also checks if file exist
+			if (size != 0) {
+				result.add(new ValidationError(ValidationErrorCode.GPG_SIGNATURE_FAILURE, "repository contains gpg signature, but no gpg information provided. unable to verify"));
+			}
+		} catch (ResourceDoesNotExistException e) {
+			// do nothing
+		} catch (IOException e) {
+			result.add(new ValidationError(ValidationErrorCode.COMMUNICATION_FAILURE, "unable to read signature " + path));
+		}
 	}
 
 	private void validate(Set<ValidationError> errors, String path, Architecture arch, Release release) {

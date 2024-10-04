@@ -30,7 +30,6 @@ import org.junit.rules.TemporaryFolder;
 
 import ru.r2cloud.apt.model.Architecture;
 import ru.r2cloud.apt.model.DebFile;
-import ru.r2cloud.apt.model.SignConfiguration;
 
 // this test might fail if running on jdk prior to 16 due to:
 // https://bugs.openjdk.org/browse/JDK-8244706
@@ -96,18 +95,6 @@ public class AptRepositoryTest {
 		aptMan.saveFiles(Collections.singletonList(new DebFile(new File("src/test/resources/rtl-sdr_0.6git_armhf.deb"))));
 		aptMan.deletePackages(Collections.singleton("rtl-sdr"));
 		assertDirectoryEmpty(tempFolder.getRoot().getAbsolutePath() + File.separator + "pool" + File.separator + "component" + File.separator + "r");
-	}
-
-	@Test(expected = IOException.class)
-	public void testInvalidGpg() throws Exception {
-		SignConfiguration config = new SignConfiguration();
-		config.setGpgCommand(UUID.randomUUID().toString());
-		config.setKeyname(UUID.randomUUID().toString());
-		config.setPassphrase(UUID.randomUUID().toString());
-		GpgSigner signer = new GpgSignerImpl(config);
-		FileTransport transport = new FileTransport(tempFolder.getRoot().getAbsolutePath());
-		AptRepository aptMan = new AptRepositoryImpl("codename", "component", signer, transport);
-		aptMan.saveFiles(Collections.singletonList(new DebFile(new File("src/test/resources/rtl-sdr_0.6git_armhf.deb"))));
 	}
 
 	@Test

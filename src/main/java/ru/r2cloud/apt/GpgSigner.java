@@ -17,5 +17,16 @@ public interface GpgSigner {
 	 * @throws IOException - on any error
 	 */
 	void signAndSave(String path, Release release, boolean clearsign, Transport transport) throws IOException;
+	
+	/**
+	 * Validate signature
+	 * 
+	 * @param path
+	 * @param release
+	 * @param clearsign
+	 * @param transport
+	 * @throws IOException
+	 */
+	boolean validate(String path, Release release, boolean clearsign, Transport transport) throws IOException, ResourceDoesNotExistException;
 
 }

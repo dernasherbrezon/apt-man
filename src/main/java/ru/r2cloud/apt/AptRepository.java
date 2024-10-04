@@ -70,6 +70,13 @@ public interface AptRepository {
 	void deleteArchitectures(Architecture... architectures) throws IOException;
 
 	/**
+	 * Create or update GPG signature of the repository 
+	 * 
+	 * @throws IOException
+	 */
+	void sign() throws IOException;
+	
+	/**
 	 * Validate repository structure.
 	 * 
 	 * @return list of errors if any

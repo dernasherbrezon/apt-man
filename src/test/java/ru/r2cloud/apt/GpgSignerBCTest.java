@@ -1,5 +1,6 @@
 package ru.r2cloud.apt;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedOutputStream;
@@ -67,10 +68,17 @@ public class GpgSignerBCTest {
 		Release release = new Release();
 		release.load(ReleaseTest.class.getClassLoader().getResourceAsStream("Release"));
 
-		signer.signAndSave("Release.gpg", release, false, new FileTransport(tempFolder.getRoot().getAbsolutePath()));
+		FileTransport transport = new FileTransport(tempFolder.getRoot().getAbsolutePath());
+		signer.signAndSave("Release.gpg", release, false, transport);
 		assertTrue(new File(tempFolder.getRoot(), "Release.gpg").exists());
-		signer.signAndSave("InRelease", release, true, new FileTransport(tempFolder.getRoot().getAbsolutePath()));
+		signer.signAndSave("InRelease", release, true, transport);
 		assertTrue(new File(tempFolder.getRoot(), "InRelease").exists());
+		assertTrue(signer.validate("Release.gpg", release, false, transport));
+		assertTrue(signer.validate("InRelease", release, true, transport));
+
+		release.setCodename(UUID.randomUUID().toString());
+		assertFalse(signer.validate("Release.gpg", release, false, transport));
+		assertFalse(signer.validate("InRelease", release, true, transport));
 	}
 
 	@Before
