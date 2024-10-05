@@ -22,10 +22,10 @@ apt-man supports several extension points:
 
 ```java
 SignConfiguration config = new SignConfiguration();
-config.setGpgCommand("gpg");
 config.setKeyname("123");
 config.setPassphrase("123");
-GpgSigner signer = new GpgSignerImpl(config);
+config.setSecretKeyFilename("private.asc");
+GpgSigner signer = new GpgSignerBC(config);
 AptRepository repo = new AptRepositoryImpl("stretch", "main", signer, new FileTransport("/var/www/apt"));
 repo.saveFiles(Collections.singletonList(new DebFile(new File("rtl-sdr_0.6_armhf.deb"))));
 repo.deletePackages(Collections.singleton("rtl-sdr"));
@@ -39,6 +39,6 @@ repo.cleanup(1);
 <dependency>
 	<groupId>ru.r2cloud</groupId>
 	<artifactId>apt-man</artifactId>
-	<version>1.2</version>
+	<version>1.13</version>
 </dependency>
 ```
