@@ -9,6 +9,9 @@ Library for managing APT repository. This library is lightweight and can be embe
   * Save .deb files. Simply upload multiple .deb files into APT repository.
   * Cleanup repository. Delete unused files from APT repository.
   * Delete packages. Some packages can be no longer needed into the repository or moved somewhere else.
+  * Delete whole architecture from the repository.
+  * Re-create GPG signing information
+  * Validate repository. Checks for no broken links, valid file sizes and GPG signatures
   * Support [by-hash](https://wiki.ubuntu.com/AptByHash) in APT repositories.
   
 # Extending
@@ -16,7 +19,7 @@ Library for managing APT repository. This library is lightweight and can be embe
 apt-man supports several extension points:
 
  * ru.r2cloud.apt.Transport. This interface is for accessing local or remote APT repositories. By default only FileTransport is available.
- * ru.r2cloud.apt.GpgSigner. This interface is for signing files in APT repositories. Default ru.r2cloud.apt.GpgSignerImpl uses system "gpg" command to sign.
+ * ru.r2cloud.apt.GpgSigner. This interface is for signing files in APT repositories.
  
 # Example
 
